@@ -1,7 +1,6 @@
 variable "sa_key_file" {
   description = "Путь к JSON-ключу сервисного аккаунта"
   type        = string
-  default     = "sa-key.json"
 }
 
 variable "yc_cloud_id" {
