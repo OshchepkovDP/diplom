@@ -32,7 +32,7 @@ locals {
     "kms.admin",
     "iam.serviceAccounts.admin",
     "storage.editor",
-    "resource-manager.editor",
+    "resource-manager.admin",
   ]
 }
 
