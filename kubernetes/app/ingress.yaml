@@ -1,0 +1,20 @@
+# Приложение доступно на 80 порту
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-app-ingress
+  namespace: diplom-app
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: nginx-app-service
+                port:
+                  number: 80

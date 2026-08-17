@@ -1,0 +1,38 @@
+grafana:
+  enabled: true
+  admin:
+    existingSecret: "grafana-admin-secret"
+    userKey: "admin-user"
+    passwordKey: "admin-password"
+  service:
+    type: ClusterIP
+  persistence:
+    enabled: false
+  defaultDashboardsTimezone: Europe/Moscow
+  grafana.ini:
+    server:
+      root_url: "%(protocol)s://%(domain)s/grafana"
+      serve_from_sub_path: true
+
+alertmanager:
+  enabled: true
+  service:
+    type: ClusterIP
+
+prometheus:
+  enabled: true
+  prometheusSpec:
+    retention: 7d
+    resources:
+      requests:
+        memory: 256Mi
+        cpu: 100m
+      limits:
+        memory: 512Mi
+
+nodeExporter:
+  enabled: true
+kubeStateMetrics:
+  enabled: true
+defaultRules:
+  create: true

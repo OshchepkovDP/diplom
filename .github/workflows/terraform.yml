@@ -1,0 +1,91 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches: [main]
+    paths: ['terraform/infrastructure/**']
+  pull_request:
+    branches: [main]
+    paths: ['terraform/infrastructure/**']
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  terraform:
+    name: Terraform Plan / Apply
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/infrastructure/
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.7.0
+
+      - name: Write SA key
+        run: |
+          echo '${{ secrets.YC_SA_KEY_JSON }}' > /tmp/sa-key.json
+          chmod 600 /tmp/sa-key.json
+
+      - name: Terraform Init
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_S3_SECRET_KEY }}
+        run: |
+          terraform init \
+            -backend-config="bucket=${{ secrets.TF_STATE_BUCKET }}" \
+            -backend-config="access_key=${{ secrets.TF_S3_ACCESS_KEY }}" \
+            -backend-config="secret_key=${{ secrets.TF_S3_SECRET_KEY }}"
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        id: plan
+        env:
+          TF_VAR_yc_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_yc_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          TF_VAR_sa_key_file: /tmp/sa-key.json
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_S3_SECRET_KEY }}
+        run: terraform plan -out=tfplan -input=false
+
+      - name: Comment Plan to PR
+        uses: actions/github-script@v7
+        if: github.event_name == 'pull_request'
+        with:
+          script: |
+            const { execSync } = require('child_process')
+            const plan = execSync(
+              'terraform show -no-color tfplan',
+              { cwd: 'terraform/infrastructure' }
+            ).toString()
+            const truncated = plan.length > 60000
+              ? plan.slice(0, 60000) + '\n...[truncated]'
+              : plan
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Terraform Plan\n\`\`\`hcl\n${truncated}\n\`\`\``
+            })
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          TF_VAR_yc_cloud_id: ${{ secrets.YC_CLOUD_ID }}
+          TF_VAR_yc_folder_id: ${{ secrets.YC_FOLDER_ID }}
+          TF_VAR_sa_key_file: /tmp/sa-key.json
+          AWS_ACCESS_KEY_ID: ${{ secrets.TF_S3_ACCESS_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.TF_S3_SECRET_KEY }}
+        run: terraform apply -auto-approve tfplan
+
+      - name: Cleanup
+        if: always()
+        run: rm -f /tmp/sa-key.json

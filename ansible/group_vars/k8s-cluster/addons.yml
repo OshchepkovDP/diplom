@@ -1,0 +1,18 @@
+---
+# Helm
+helm_enabled: true
+
+# Metrics Server
+metrics_server_enabled: true
+metrics_server_kubelet_insecure_tls: true
+
+# Ingress NGINX — для доступа к Grafana и приложению
+# ingress_nginx_enabled: true
+ingress_nginx_host_network: false
+
+# CoreDNS
+dns_mode: coredns
+
+# Локальный провизионер томов (для Grafana persistence)
+local_path_provisioner_enabled: true
+local_path_provisioner_namespace: local-path-storage

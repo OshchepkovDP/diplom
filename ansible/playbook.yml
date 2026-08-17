@@ -1,0 +1,11 @@
+---
+# Использует Kubespray как git submodule.
+
+- name: "Подготовка нод"
+  import_playbook: pre_install.yml
+
+- name: "Установка Kubernetes (Kubespray)"
+  import_playbook: kubespray/cluster.yml
+
+- name: "Пост-установка — kubeconfig и проверка"
+  import_playbook: post_install.yml

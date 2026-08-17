@@ -1,0 +1,24 @@
+---
+# Ansible connection
+ansible_user: ubuntu
+ansible_become: true
+ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+
+# Kubespray: Container runtime
+container_manager: containerd
+
+# Загружать образы один раз
+download_run_once: true
+download_localhost: false
+
+# Kubernetes version (LTS)
+kube_version: v1.29.3
+
+# CNI plugin
+kube_network_plugin: calico
+kube_pods_subnet: 192.168.0.0/16
+kube_service_addresses: 10.96.0.0/12
+
+# Системные настройки
+bootstrap_os: ubuntu

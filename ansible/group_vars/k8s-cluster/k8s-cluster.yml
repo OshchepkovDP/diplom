@@ -1,0 +1,14 @@
+---
+cluster_name: diplom-cluster
+
+# RBAC
+authorization_modes:
+  - Node
+  - RBAC
+
+# Шифрование secrets через KMS
+# kube_encrypt_secret_data: true
+
+# kubeconfig для внешнего доступа
+kubeconfig_localhost: true
+kubectl_localhost: true

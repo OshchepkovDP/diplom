@@ -1,0 +1,28 @@
+# Terraform
+.terraform/
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+*.tfstate.*.backup
+tfplan
+.terraform.lock.hcl
+
+# Секретные файлы
+sa-key.json
+*sa-key*
+kubeconfig
+registry-sa-key.json
+*.pem
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Генерированные файлы
+all_content.txt
+
+# OS
+.DS_Store
+terraform.tfvars

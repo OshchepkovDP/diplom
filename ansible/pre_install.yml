@@ -1,0 +1,76 @@
+---
+- name: Подготовка всех нод к установке Kubernetes
+  hosts: all
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Обновить apt-кэш
+      apt:
+        update_cache: true
+        cache_valid_time: 3600
+
+    - name: Установить базовые пакеты
+      apt:
+        name:
+          - curl
+          - wget
+          - apt-transport-https
+          - ca-certificates
+          - gnupg
+          - lsb-release
+          - python3-pip
+          - net-tools
+          - htop
+          - git
+        state: present
+
+    - name: Отключить swap (требование Kubernetes)
+      command: swapoff -a
+      changed_when: false
+
+    - name: Убрать swap из /etc/fstab
+      replace:
+        path: /etc/fstab
+        regexp: '^([^#].*\sswap\s+sw\s+.*)$'
+        replace: '# \1'
+
+    - name: Загрузить необходимые модули ядра
+      modprobe:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - overlay
+        - br_netfilter
+
+    - name: Сохранить модули ядра (persist after reboot)
+      copy:
+        dest: /etc/modules-load.d/k8s.conf
+        content: |
+          overlay
+          br_netfilter
+        mode: '0644'
+
+    - name: Настроить sysctl параметры для Kubernetes
+      sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        sysctl_set: true
+        state: present
+        reload: true
+      loop:
+        - { key: 'net.bridge.bridge-nf-call-iptables',  value: '1' }
+        - { key: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+        - { key: 'net.ipv4.ip_forward',                 value: '1' }
+
+    - name: Настроить /etc/hosts для внутренней DNS-резолюции
+      lineinfile:
+        path: /etc/hosts
+        line: "{{ hostvars[item]['ip'] }} {{ item }}"
+        state: present
+      loop: "{{ groups['all'] }}"
+      when: hostvars[item]['ip'] is defined
+
+    - name: Установить временную зону
+      timezone:
+        name: Europe/Moscow

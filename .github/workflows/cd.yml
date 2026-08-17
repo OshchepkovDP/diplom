@@ -1,0 +1,79 @@
+name: CD — Deploy to Kubernetes
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-tagged:
+    name: Build and Push Tagged Image
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: meta
+        run: echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Login to Yandex Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: cr.yandex
+          username: json_key
+          password: ${{ secrets.YC_REGISTRY_SA_KEY }}
+
+      - name: Build and push tagged image
+        uses: docker/build-push-action@v5
+        with:
+          context: app/
+          push: true
+          tags: |
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/diplom-app:${{ steps.meta.outputs.version }}
+            cr.yandex/${{ secrets.YC_REGISTRY_ID }}/diplom-app:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Kubernetes
+    runs-on: ubuntu-latest
+    needs: build-tagged
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.29.3'
+
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo '${{ secrets.KUBECONFIG }}' > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+
+      - name: Подготовить манифесты
+        run: |
+          sed -i "s|REPLACE_WITH_REGISTRY_ID|${{ secrets.YC_REGISTRY_ID }}|g" \
+            kubernetes/app/deployment.yaml
+
+      - name: Apply Kubernetes manifests
+        run: |
+          kubectl apply -f kubernetes/app/namespace.yaml
+          kubectl apply -f kubernetes/app/deployment.yaml
+          kubectl apply -f kubernetes/app/service.yaml
+          kubectl apply -f kubernetes/app/ingress.yaml
+
+      - name: Обновить образ на версию тега
+        run: |
+          kubectl set image deployment/nginx-app \
+            nginx=cr.yandex/${{ secrets.YC_REGISTRY_ID }}/diplom-app:${{ needs.build-tagged.outputs.version }} \
+            -n diplom-app
+
+      - name: Дождаться rollout
+        run: |
+          kubectl rollout status deployment/nginx-app -n diplom-app --timeout=5m

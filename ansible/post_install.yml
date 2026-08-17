@@ -1,0 +1,72 @@
+---
+- name: Пост-установка — kubeconfig и проверка кластера
+  hosts: kube_control_plane
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Создать .kube директорию для пользователя ubuntu
+      file:
+        path: /home/ubuntu/.kube
+        state: directory
+        owner: ubuntu
+        group: ubuntu
+        mode: '0755'
+
+    - name: Скопировать kubeconfig для пользователя ubuntu
+      copy:
+        src: /etc/kubernetes/admin.conf
+        dest: /home/ubuntu/.kube/config
+        remote_src: true
+        owner: ubuntu
+        group: ubuntu
+        mode: '0600'
+
+    - name: Скачать kubeconfig на локальную машину
+      fetch:
+        src: /etc/kubernetes/admin.conf
+        dest: "{{ playbook_dir }}/../kubeconfig"
+        flat: true
+
+    - name: Заменить внутренний IP на внешний в kubeconfig
+      delegate_to: localhost
+      become: false
+      replace:
+        path: "{{ playbook_dir }}/../kubeconfig"
+        regexp: 'https://\d+\.\d+\.\d+\.\d+:6443'
+        replace: "https://{{ ansible_host }}:6443"
+
+    - name: Подождать, пока все ноды станут Ready
+      become: false
+      command: kubectl get nodes --no-headers
+      register: nodes_status
+      until:
+        - nodes_status.rc == 0
+        - "'NotReady' not in nodes_status.stdout"
+        - nodes_status.stdout_lines | length >=(groups['all'] | length)
+      retries: 24
+      delay: 15
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Показать статус кластера
+      become: false
+      command: kubectl get nodes -o wide
+      register: cluster_nodes
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Вывести ноды кластера
+      debug:
+        msg: "{{ cluster_nodes.stdout_lines }}"
+
+    - name: Показать все поды
+      become: false
+      command: kubectl get pods --all-namespaces
+      register: all_pods
+      environment:
+        KUBECONFIG: /home/ubuntu/.kube/config
+
+    - name: Вывести поды
+      debug:
+        msg: "{{ all_pods.stdout_lines }}"
