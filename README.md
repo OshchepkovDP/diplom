@@ -254,7 +254,7 @@ cr.yandex/crpe9rio3jbnbsrgurqe/diplom-app:latest
 cr.yandex/crpe9rio3jbnbsrgurqe/diplom-app:v1.0.0
 ```
 
-![Ссылка на приложение](http://158.160.34.186:30080)
+[Ссылка на приложение](http://158.160.34.186:30080)
 
 4. Мониторинг
 
