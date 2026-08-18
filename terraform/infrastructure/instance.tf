@@ -45,7 +45,7 @@ resource "yandex_compute_instance" "k8s_master" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file(var.ssh_public_key_path)}"
+    ssh-keys = "ubuntu:${var.ssh_public_key != "" ? var.ssh_public_key : file(var.ssh_public_key_path)}"
     user-data = <<-EOF
       #cloud-config
       packages:
@@ -102,7 +102,7 @@ resource "yandex_compute_instance" "k8s_worker" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file(var.ssh_public_key_path)}"
+    ssh-keys = "ubuntu:${var.ssh_public_key != "" ? var.ssh_public_key : file(var.ssh_public_key_path)}"
     user-data = <<-EOF
       #cloud-config
       packages:

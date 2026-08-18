@@ -31,6 +31,7 @@ locals {
     "container-registry.admin",
     "kms.admin",
     "iam.admin",
+    "resource-manager.admin",
     "storage.editor",
   ]
 }

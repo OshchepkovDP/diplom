@@ -68,3 +68,9 @@ variable "admin_cidr" {
   description = "IP для SSH доступа"
   type        = string
 }
+
+variable "ssh_public_key" {
+  description = "Содержимое публичного SSH-ключа (строка)"
+  type        = string
+  default     = ""
+}
