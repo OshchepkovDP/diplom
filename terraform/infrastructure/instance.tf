@@ -127,3 +127,4 @@ resource "yandex_compute_instance" "k8s_worker" {
     ignore_changes = [boot_disk]
   }
 }
+
