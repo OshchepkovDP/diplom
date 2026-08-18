@@ -20,6 +20,8 @@ spec:
       labels:
         app: nginx-app
     spec:
+      imagePullSecrets:
+        - name: yc-registry-secret
       containers:
         - name: nginx
           image: cr.yandex/REPLACE_WITH_REGISTRY_ID/diplom-app:latest

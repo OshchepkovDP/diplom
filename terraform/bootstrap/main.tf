@@ -30,9 +30,8 @@ locals {
     "vpc.admin",
     "container-registry.admin",
     "kms.admin",
-    "iam.serviceAccounts.admin",
+    "iam.admin",
     "storage.editor",
-    "resource-manager.admin",
   ]
 }
 

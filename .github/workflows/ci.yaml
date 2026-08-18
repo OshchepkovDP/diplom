@@ -21,7 +21,7 @@ jobs:
         with:
           registry: cr.yandex
           username: json_key
-          # Ключ SA из terraform output registry_sa_secret_key
+          # Ключ SA из terraform output registry_sa_json_key
           password: ${{ secrets.YC_REGISTRY_SA_KEY }}
 
       - name: Set up Docker Buildx

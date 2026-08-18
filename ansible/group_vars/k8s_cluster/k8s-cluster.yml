@@ -12,3 +12,6 @@ authorization_modes:
 # kubeconfig для внешнего доступа
 kubeconfig_localhost: true
 kubectl_localhost: true
+
+supplementary_addresses_in_ssl_keys:
+  - "158.160.59.64"

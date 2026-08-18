@@ -1,6 +1,5 @@
 #!/bin/bash
 # Генерирует inventory для Kubespray из Terraform outputs
-# Запускать из директории ansible/
 set -e
 
 TERRAFORM_DIR="../terraform/infrastructure"
@@ -11,8 +10,8 @@ cd "$TERRAFORM_DIR"
 
 MASTER_EXT=$(terraform output -raw master_external_ip)
 MASTER_INT=$(terraform output -raw master_internal_ip)
-WORKER_EXT_IPS=($(terraform output -json worker_external_ips | python3 -c "import sys,json; [print(i) for i in json.load(sys.stdin)]"))
-WORKER_INT_IPS=($(terraform output -json worker_internal_ips | python3 -c "import sys,json; [print(i) for i in json.load(sys.stdin)]"))
+WORKER_EXT_IPS=($(terraform output -json worker_external_ips 2>/dev/null | python3 -c "import sys,json,re; d=sys.stdin.read(); m=re.search(r'\[.*?\]',d,re.DOTALL); [print(i) for i in json.loads(m.group())] if m else None"))
+WORKER_INT_IPS=($(terraform output -json worker_internal_ips 2>/dev/null | python3 -c "import sys,json,re; d=sys.stdin.read(); m=re.search(r'\[.*?\]',d,re.DOTALL); [print(i) for i in json.loads(m.group())] if m else None"))
 
 cd - > /dev/null
 mkdir -p inventory

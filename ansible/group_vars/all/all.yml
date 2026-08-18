@@ -8,12 +8,13 @@ ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
 # Kubespray: Container runtime
 container_manager: containerd
 
-# Загружать образы один раз
+# Образы загружаются один раз
 download_run_once: true
-download_localhost: false
+download_localhost: true
+download_force_cache: true
 
 # Kubernetes version (LTS)
-kube_version: v1.29.3
+kube_version: v1.28.6
 
 # CNI plugin
 kube_network_plugin: calico

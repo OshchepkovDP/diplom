@@ -26,6 +26,11 @@ jobs:
           username: json_key
           password: ${{ secrets.YC_REGISTRY_SA_KEY }}
 
+      - name: Подставить версию в index.html
+        run: |
+          sed -i "s|APP_VERSION|${{ steps.meta.outputs.version }}|g" \
+            app/html/index.html
+
       - name: Build and push tagged image
         uses: docker/build-push-action@v5
         with:
@@ -55,6 +60,15 @@ jobs:
           mkdir -p $HOME/.kube
           echo '${{ secrets.KUBECONFIG }}' > $HOME/.kube/config
           chmod 600 $HOME/.kube/config
+
+      - name: Create registry pull secret
+        run: |
+          kubectl create secret docker-registry yc-registry-secret \
+            --docker-server=cr.yandex \
+            --docker-username=json_key \
+            --docker-password='${{ secrets.YC_REGISTRY_SA_KEY }}' \
+            --namespace=diplom-app \
+            --dry-run=client -o yaml | kubectl apply -f -
 
       - name: Подготовить манифесты
         run: |

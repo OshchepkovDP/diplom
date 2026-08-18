@@ -25,16 +25,6 @@ output "registry_endpoint" {
   value       = "cr.yandex/${yandex_container_registry.diploma.id}"
 }
 
-output "registry_sa_access_key" {
-  value     = yandex_iam_service_account_static_access_key.registry_key.access_key
-  sensitive = true
-}
-
-output "registry_sa_secret_key" {
-  value     = yandex_iam_service_account_static_access_key.registry_key.secret_key
-  sensitive = true
-}
-
 # KMS
 output "kms_key_id" {
   value = yandex_kms_symmetric_key.k8s_secrets_key.id

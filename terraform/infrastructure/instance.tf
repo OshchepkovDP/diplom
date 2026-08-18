@@ -65,6 +65,10 @@ resource "yandex_compute_instance" "k8s_master" {
     role = "master"
     env  = "k8s"
   }
+
+  lifecycle {
+    ignore_changes = [boot_disk]
+  }
 }
 
 resource "yandex_compute_instance" "k8s_worker" {
@@ -117,5 +121,9 @@ resource "yandex_compute_instance" "k8s_worker" {
   labels = {
     role = "worker"
     env  = "k8s"
+  }
+
+  lifecycle {
+    ignore_changes = [boot_disk]
   }
 }

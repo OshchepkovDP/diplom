@@ -64,7 +64,6 @@ jobs:
             const { execSync } = require('child_process')
             const plan = execSync(
               'terraform show -no-color tfplan',
-              { cwd: 'terraform/infrastructure' }
             ).toString()
             const truncated = plan.length > 60000
               ? plan.slice(0, 60000) + '\n...[truncated]'
