@@ -36,8 +36,8 @@ resource "yandex_compute_instance" "k8s_master" {
   }
 
   network_interface {
-    subnet_id = yandex_vpc_subnet.public_a.id
-    nat       = true
+    subnet_id      = yandex_vpc_subnet.public_a.id
+    nat            = true
     security_group_ids = [
       yandex_vpc_security_group.k8s_master.id,
       yandex_vpc_security_group.k8s_cluster.id,
@@ -95,6 +95,7 @@ resource "yandex_compute_instance" "k8s_worker" {
   network_interface {
     subnet_id = local.subnets[count.index % length(local.subnets)]
     nat       = true
+    nat_ip_address = yandex_vpc_address.worker_ips[count.index].external_ipv4_address[0].address
     security_group_ids = [
       yandex_vpc_security_group.k8s_worker.id,
       yandex_vpc_security_group.k8s_cluster.id,

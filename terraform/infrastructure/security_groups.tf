@@ -10,6 +10,13 @@ resource "yandex_vpc_security_group" "k8s_cluster" {
     description       = "Любой трафик внутри кластера"
   }
 
+  ingress {
+    protocol       = "TCP"
+    port           = 30080
+    v4_cidr_blocks = ["0.0.0.0/0"]
+    description    = "NodePort Ingress HTTP"
+  }
+
   egress {
     protocol       = "ANY"
     v4_cidr_blocks = ["0.0.0.0/0"]

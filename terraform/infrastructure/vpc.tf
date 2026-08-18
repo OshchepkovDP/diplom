@@ -2,6 +2,14 @@ resource "yandex_vpc_network" "main" {
   name = "k8s-network"
 }
 
+resource "yandex_vpc_address" "worker_ips" {
+  count = var.worker_count
+  name  = "worker-${count.index + 1}-static-ip"
+  external_ipv4_address {
+    zone_id = local.zones[count.index % length(local.zones)]
+  }
+}
+
 # Подсети в трёх зонах для отказоустойчивости
 resource "yandex_vpc_subnet" "public_a" {
   name           = "public-a"
