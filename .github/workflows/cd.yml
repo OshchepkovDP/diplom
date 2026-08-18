@@ -39,8 +39,6 @@ jobs:
           tags: |
             cr.yandex/${{ secrets.YC_REGISTRY_ID }}/diplom-app:${{ steps.meta.outputs.version }}
             cr.yandex/${{ secrets.YC_REGISTRY_ID }}/diplom-app:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
           provenance: false
 
   deploy:
