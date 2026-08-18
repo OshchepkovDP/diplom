@@ -152,6 +152,7 @@
 ---
 
 ## Структура репозитория
+```
 .
 ├── terraform/
 │   ├── bootstrap/        # Создание SA и S3-бакета для tfstate
@@ -174,6 +175,7 @@
 ├── ci.yaml           # CI: сборка образа при push в app/
 ├── cd.yml            # CD: деплой при создании тега v*..
 └── terraform.yml     # Terraform plan/apply при push в terraform/
+```
 
 ---
 
@@ -185,7 +187,7 @@
 
 1. Bootstrap — создание сервисного аккаунта и S3-бакета для хранения tfstate:
 
-```bash
+```
 cd terraform/bootstrap
 terraform init
 terraform apply -var="yc_token=$(yc iam create-token)"
@@ -254,7 +256,7 @@ cr.yandex/crpe9rio3jbnbsrgurqe/diplom-app:latest
 cr.yandex/crpe9rio3jbnbsrgurqe/diplom-app:v1.0.0
 ```
 
-[Ссылка на приложение](http://158.160.34.186:30080)
+[Ссылка на приложение](http://158.160.59.64:30080)
 
 4. Мониторинг
 
@@ -267,7 +269,7 @@ cr.yandex/crpe9rio3jbnbsrgurqe/diplom-app:v1.0.0
 - Alertmanager — алерты
 - node-exporter — метрики нод
 - kube-state-metrics — метрики K8s объектов
-- Grafana: http://158.160.34.186:30080/grafana/
+- Grafana: http://158.160.59.64:30080/grafana/
 
 Установка:
 
@@ -311,9 +313,9 @@ Workflow: `terraform.yml`
 
 [Репозиторий](https://github.com/OshchepkovDP/diplom)
 
-[Тестовое приложение](http://158.160.34.186:30080/)
+[Тестовое приложение](http://158.160.59.64:30080/)
 
-[Grafana](http://158.160.34.186:30080/grafana/)
+[Grafana](http://158.160.59.64:30080/grafana/)
 
 [Docker образ](https://console.yandex.cloud/folders/b1g2426oq802iot2pt34/container-registry/registries/crpe9rio3jbnbsrgurqe/overview/diplom-app/image/crpgmorug19rfp14vrsl/overview)
 
